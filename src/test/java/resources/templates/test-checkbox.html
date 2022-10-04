@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC
+ "-//OPENHTMLTOPDF//DOC XHTML Character Entities Only 1.0//EN" "NLG">
+<html>
+	<head>
+	<style>
+	.justAnotherHand {
+	  font-family: 'LiberationMono-Bold';
+	}
+	.monoton-Regular {
+	  font-family: 'LiberationSans-BoldItalic';
+	}
+	.helvetica {
+	  font-family: 'LiberationSans-Regular';
+	}
+    .ZapfDingbats {
+	  font-family: 'LiberationSerif-BoldItalic';
+	}
+	
+	</style>
+	</head>
+	<body>
+	<h3> ${title!} </h3>
+	<p class="justAnotherHand">Font justAnotherHand</p>
+	<p class="monoton-Regular">Font monoton-Regular</p>
+    <p class="helvetica">Font helvetica</p>
+    <p class="ZapfDingbats">Font ZapfDingbats</p>
+    <form>
+     	<label>Case à cocher:</label>
+     	
+		 <input type="checkbox" name="checker" value="1" checked />
+		 <input type="checkbox" name="checker1" value="2"  style="-fs-checkbox-style: square;" />
+		 <input type="checkbox" name="checker2" value="3" style="-fs-checkbox-style: diamond;" />
+		 <input type="checkbox" name="checker3" value="4"  style="-fs-checkbox-style: star;" />
+		 <input type="checkbox" name="checker4" value="5"  style="-fs-checkbox-style: circle;" />
+		 <input type="checkbox" name="checker5" value="6"  style="-fs-checkbox-style: cross;" />
+		<label>Zone de saisie:</label>
+		
+		<input type="text" name="input"/>
+		
+		<label>Button radio test</label>
+		<input type="radio" name="radio" checked />
+    </form>
+	
+	</body>
+</html>

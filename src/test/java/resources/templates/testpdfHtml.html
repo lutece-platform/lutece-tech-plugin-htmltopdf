@@ -1,0 +1,73 @@
+<div class="card" >
+<ul class="nav nav-tabs" data-bs-toggle="tabs" role="tablist">
+			<li class="active">
+				<a href="jsp/site/Portal.jsp?page=avant">Avant</a>
+			</li>
+</ul>
+</div>
+
+<div class="row">
+<div class="col">
+
+<form class="form-horizontal" action="jsp/site/Portal.jsp?page=avant" method="post">
+			<fieldset>
+				<legend>Création d'un Avant</legend>
+				<input type="hidden" id="id" name="id"/>
+				<input type="hidden" value="ba77cea1-e758-4035-b607-a5b8173ed272" name="token" />
+
+
+<div class="form-group mb-3 row">
+
+<label class="form-label required col-sm-12 col-lg-3 col-form-label text-right " for="nom" ariaLabel="Nom [Obligatoire]">
+	<span class=" ">Nom </span>
+</label>
+		<div class="col-lg-6">
+	<input class="form-control" type="text" name="nom" value="" tabindex="1" maxlength="255" id="nom" required="true"  />
+	<small class="text-muted form-text" aria-describedby="nom">Nom (texte d'aide)</small>
+		</div>
+</div>
+
+<div class="form-group mb-3 row">
+
+<label class="form-label required col-sm-12 col-lg-3 col-form-label text-right " for="date_old_format" ariaLabel="Date old format [Obligatoire]">
+	<span class=" ">Date old format </span>
+</label>
+		<div class="col-lg-6">
+	<input class="form-control" type="text" name="date_old_format" value="" tabindex="2" id="date_old_format" required="true"  />
+	<small class="text-muted form-text" aria-describedby="date_old_format">Date old format (texte d'aide)</small>
+		</div>
+</div>
+
+<div class="form-group mb-3 row">
+		<div class="col-sm-12 offset-lg-3 col-lg-6">
+
+	<button class="btn btn-sm btn-primary" type="submit" title="Créer" name="action_createAvant">
+<i class="fas fa-plus me-1 mr-1" aria-hidden="true"></i>
+			
+				Créer
+			
+		
+	</button>
+
+	<button class="btn btn-sm btn-default" type="submit" title="Annuler" name="view_manageAvants">
+<i class="fas fa-times me-1 mr-1" aria-hidden="true"></i>
+			
+				Annuler
+			
+		
+	</button>
+
+	<button class="btn btn-sm btn-primary" type="submit" title="Save PDF" name="action_savePDF">
+<i class="fas fa-plus me-1 mr-1" aria-hidden="true"></i>
+			
+				Save PDF
+			
+		
+	</button>
+	
+		</div>
+</div>
+        </fieldset>
+</form>
+</div>
+</div>

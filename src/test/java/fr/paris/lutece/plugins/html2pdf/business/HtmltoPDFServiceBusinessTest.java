@@ -34,25 +34,21 @@
 
 package fr.paris.lutece.plugins.html2pdf.business;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities.EscapeMode;
-
-import com.google.protobuf.ByteString.Output;
-
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterServiceException;
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterService;
-import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.test.LuteceTestCase;
-import fr.paris.lutece.util.html.HtmlTemplate;
 
 
 /**
@@ -73,8 +69,9 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         String html = "<!DOCTYPE html PUBLIC \"-//OPENHTMLTOPDF//DOC XHTML Character Entities Only 1.0//EN\" \"\">\n"
         		+ "<html><head><title>Example</title></head><body>very simple test</body></html>";
         
-        //try ( OutputStream outputStream = new ByteArrayOutputStream(1024) )
-        try ( OutputStream outputStream =  new FileOutputStream("/home/norbert/DEV/out.pdf") )
+        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","out.pdf");
+    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
+        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
         {
         	//new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html ).render( outputStream );
         	PdfConverterService.getInstance().getPdfBuilder().reset().withHtmlContent(html).render(outputStream);
@@ -105,39 +102,13 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         Map<String, String> mapOptions = new HashMap<>();
         mapOptions.put( "PathFont", "/");
         
-        Map<String, String> mapWatermarkOptions = new HashMap<>();
-        mapWatermarkOptions.put("FontSize", "50f");
-        mapWatermarkOptions.put("Rotation", "1f");
-        mapWatermarkOptions.put("Text", "TESTWATERMARK");
-        mapWatermarkOptions.put("X", "200f");
-        mapWatermarkOptions.put("Y", "200f");
-        mapWatermarkOptions.put("Font", "HELVETICA");
-        
-        Map<String, String> mapQRcodeOptions = new HashMap<>();
-        mapQRcodeOptions.put("barCodeFormat", "QR_CODE");
-        mapQRcodeOptions.put("text", "testNLG");
-        mapQRcodeOptions.put("x", "450f");
-        mapQRcodeOptions.put("y", "700f");
-        mapQRcodeOptions.put("width", "100");
-        mapQRcodeOptions.put("height", "100");
-        mapQRcodeOptions.put("pageIndex", "0");
-        
-        //try ( OutputStream outputStream = new ByteArrayOutputStream(1024) )
-        try ( OutputStream outputStream =  new FileOutputStream("/home/norbert/DEV/out2.pdf") )
+        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","out2.pdf");
+    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
+        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
         {
-        	/*
-        	new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html )
-        			.withOptions(mapOptions)
-        			.withWatermark(mapWatermarkOptions)
-        			.withBarCode(mapQRcodeOptions)
-        			.withNotEditable()
-        			.render( outputStream );
-        	*/
         	PdfConverterService.getInstance().getPdfBuilder().reset()
         	.withHtmlContent(html)
         	.withOptions(mapOptions)
-        	//.withBarCode(mapQRcodeOptions)
-        	//.withWatermark(mapWatermarkOptions)
         	.notEditable()
         	.render(outputStream);
         } 
@@ -158,57 +129,27 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
 
     public void testHtml2Pdf_3(  ) throws IOException
     {
-
-    	File input = new File("/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/templates/test-checkbox.html");
-    	//File input = new File("/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/templates/test-image.html");
-    	//String html = loadTemplate("/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/templates/test-checkbox.html");
+    	Path resourceDirectory = Paths.get("src","test","java","resources","templates","test-checkbox.html");
+    	String absolutePath = resourceDirectory.toFile().getAbsolutePath();    	
+    	File input = new File(absolutePath);
     	Document doc = Jsoup.parse(input, "UTF-8");
     	doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
     	doc.outputSettings().escapeMode(EscapeMode.base.xhtml);
         doc.outputSettings().charset("UTF-8");
-    	
-    	//String html = Jsoup.parse(input, "UTF-8").html( );
+
     	String html = doc.html();
         
     	
         Map<String, String> mapOptions = new HashMap<>();
-        //mapOptions.put( "PathFont", "/");
-        //mapOptions.put( "PathFont", "/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/fonts/");
-        mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/");
+        //mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/");
         
-        Map<String, String> mapWatermarkOptions = new HashMap<>();
-        mapWatermarkOptions.put("FontSize", "50f");
-        mapWatermarkOptions.put("Rotation", "1f");
-        mapWatermarkOptions.put("Text", "TESTWATERMARK");
-        mapWatermarkOptions.put("X", "200f");
-        mapWatermarkOptions.put("Y", "200f");
-        mapWatermarkOptions.put("Font", "HELVETICA");
-        
-        Map<String, String> mapQRcodeOptions = new HashMap<>();
-        mapQRcodeOptions.put("barCodeFormat", "QR_CODE");
-        mapQRcodeOptions.put("text", "testNLG");
-        mapQRcodeOptions.put("x", "450f");
-        mapQRcodeOptions.put("y", "700f");
-        mapQRcodeOptions.put("width", "100");
-        mapQRcodeOptions.put("height", "100");
-        mapQRcodeOptions.put("pageIndex", "0");
-        
-        //try ( OutputStream outputStream = new ByteArrayOutputStream(1024) )
-        try ( OutputStream outputStream =  new FileOutputStream("/home/norbert/DEV/outRadioBox.pdf") )
+        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","outRadioBox.pdf");
+    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
+        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
         {
-        	/*
-        	new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html )
-        			.withOptions(mapOptions)
-        			.withWatermark(mapWatermarkOptions)
-        			.withBarCode(mapQRcodeOptions)
-        			.withNotEditable()
-        			.render( outputStream );
-        	*/
         	PdfConverterService.getInstance().getPdfBuilder().reset()
         	.withHtmlContent(html)
         	.withOptions(mapOptions)
-        	//.withBarCode(mapQRcodeOptions)
-        	//.withWatermark(mapWatermarkOptions)
         	.notEditable()
         	.render(outputStream);
         } 
@@ -230,20 +171,19 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
     public void testHtml2Pdf_4(  ) throws IOException
     {
 
-    	//File input = new File("/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/templates/test-checkbox.html");
-    	File input = new File("/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/templates/PM_cerfa.html");
-    	//String html = loadTemplate("/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/templates/test-checkbox.html");
+    	Path resourceDirectory = Paths.get("src","test","java","resources","templates","PM_cerfa.html");
+    	String absolutePath = resourceDirectory.toFile().getAbsolutePath();    	
+    	File input = new File(absolutePath);
+
     	Document doc = Jsoup.parse(input, "UTF-8");
     	doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
     	doc.outputSettings().escapeMode(EscapeMode.base.xhtml);
         doc.outputSettings().charset("UTF-8");
     	
-    	//String html = Jsoup.parse(input, "UTF-8").html( );
     	String html = doc.html();
         
     	
         Map<String, String> mapOptions = new HashMap<>();
-        //mapOptions.put( "PathFont", "/home/norbert/git/plugin-htmltopdf_seb/src/test/java/resources/fonts/");
         mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/");
         
         Map<String, String> mapWatermarkOptions = new HashMap<>();
@@ -263,22 +203,14 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         mapQRcodeOptions.put("height", "100");
         mapQRcodeOptions.put("pageIndex", "0");
         
-        //try ( OutputStream outputStream = new ByteArrayOutputStream(1024) )
-        try ( OutputStream outputStream =  new FileOutputStream("/home/norbert/DEV/out4.pdf") )
+        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","out4.pdf");
+    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
+        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
         {
-        	/*
-        	new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html )
-        			.withOptions(mapOptions)
-        			.withWatermark(mapWatermarkOptions)
-        			.withBarCode(mapQRcodeOptions)
-        			.withNotEditable()
-        			.render( outputStream );
-        	*/
+
         	PdfConverterService.getInstance().getPdfBuilder().reset()
         	.withHtmlContent(html)
         	.withOptions(mapOptions)
-        	//.withBarCode(mapQRcodeOptions)
-        	//.withWatermark(mapWatermarkOptions)
         	.notEditable()
         	.render(outputStream);
         } 

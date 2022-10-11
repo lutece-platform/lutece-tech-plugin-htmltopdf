@@ -28,10 +28,9 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- *"
+ *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.html2pdf.business;
 
 import java.io.File;
@@ -50,179 +49,166 @@ import fr.paris.lutece.plugins.html2pdf.service.PdfConverterServiceException;
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterService;
 import fr.paris.lutece.test.LuteceTestCase;
 
-
 /**
  * This is the business class test for the object HtmltoPDFService
  */
 public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
 {
 
-	/**
-	* test HtmltoPDFService 1
-	*/
-    public void testHtml2Pdf_1(  )
+    /**
+     * test HtmltoPDFService 1
+     */
+    public void testHtml2Pdf_1( )
     {
 
-        Map<String, String> mapOptions = new HashMap<>();
-        mapOptions.put( "PathFont", "/");
-        
+        Map<String, String> mapOptions = new HashMap<>( );
+        mapOptions.put( "PathFont", "/" );
+
         String html = "<!DOCTYPE html PUBLIC \"-//OPENHTMLTOPDF//DOC XHTML Character Entities Only 1.0//EN\" \"\">\n"
-        		+ "<html><head><title>Example</title></head><body>very simple test</body></html>";
-        
-        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","out.pdf");
-    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
-        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
-        {
-        	//new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html ).render( outputStream );
-        	PdfConverterService.getInstance().getPdfBuilder().reset().withHtmlContent(html).render(outputStream);
-        } 
-        catch ( PdfConverterServiceException e )
-        {
-        	fail( e.getMessage( ) );
-        } 
-        catch (IOException e) 
-        {
-        	fail( e.getMessage( ) );
-		}
-   
-    }
-    
-    
-	/**
-	* test HtmltoPDFService 2
-	*/
+                + "<html><head><title>Example</title></head><body>very simple test</body></html>";
 
-    public void testHtml2Pdf_2(  )
-    {
+        Path resourceDirectoryOutput = Paths.get( "src", "test", "java", "resources", "output", "out.pdf" );
+        String absolutePathOutput = resourceDirectoryOutput.toFile( ).getAbsolutePath( );
+        try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
+        {
+            // new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html ).render( outputStream );
+            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).render( outputStream );
+        }
+        catch( PdfConverterServiceException e )
+        {
+            fail( e.getMessage( ) );
+        }
+        catch( IOException e )
+        {
+            fail( e.getMessage( ) );
+        }
 
-    	String html = "<!DOCTYPE html PUBLIC \"-//OPENHTMLTOPDF//DOC XHTML Character Entities Only 1.0//EN\" \"\">\n"
-        		+ "<html><head><title>Example</title></head><body>very simple test</body></html>";
-        
-    	
-        Map<String, String> mapOptions = new HashMap<>();
-        mapOptions.put( "PathFont", "/");
-        
-        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","out2.pdf");
-    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
-        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
-        {
-        	PdfConverterService.getInstance().getPdfBuilder().reset()
-        	.withHtmlContent(html)
-        	.withOptions(mapOptions)
-        	.notEditable()
-        	.render(outputStream);
-        } 
-        catch ( PdfConverterServiceException e )
-        {
-        	fail( e.getMessage( ) );
-        } 
-        catch (IOException e) 
-        {
-        	fail( e.getMessage( ) );
-		}
     }
-    
+
     /**
-	* test HtmltoPDFService 3
-     * @throws IOException 
-	*/
+     * test HtmltoPDFService 2
+     */
 
-    public void testHtml2Pdf_3(  ) throws IOException
+    public void testHtml2Pdf_2( )
     {
-    	Path resourceDirectory = Paths.get("src","test","java","resources","templates","test-checkbox.html");
-    	String absolutePath = resourceDirectory.toFile().getAbsolutePath();    	
-    	File input = new File(absolutePath);
-    	Document doc = Jsoup.parse(input, "UTF-8");
-    	doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-    	doc.outputSettings().escapeMode(EscapeMode.base.xhtml);
-        doc.outputSettings().charset("UTF-8");
 
-    	String html = doc.html();
-        
-    	
-        Map<String, String> mapOptions = new HashMap<>();
-        //mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/");
-        
-        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","outRadioBox.pdf");
-    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
-        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
+        String html = "<!DOCTYPE html PUBLIC \"-//OPENHTMLTOPDF//DOC XHTML Character Entities Only 1.0//EN\" \"\">\n"
+                + "<html><head><title>Example</title></head><body>very simple test</body></html>";
+
+        Map<String, String> mapOptions = new HashMap<>( );
+        mapOptions.put( "PathFont", "/" );
+
+        Path resourceDirectoryOutput = Paths.get( "src", "test", "java", "resources", "output", "out2.pdf" );
+        String absolutePathOutput = resourceDirectoryOutput.toFile( ).getAbsolutePath( );
+        try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
         {
-        	PdfConverterService.getInstance().getPdfBuilder().reset()
-        	.withHtmlContent(html)
-        	.withOptions(mapOptions)
-        	.notEditable()
-        	.render(outputStream);
-        } 
-        catch ( PdfConverterServiceException e )
+            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
+                    .render( outputStream );
+        }
+        catch( PdfConverterServiceException e )
         {
-        	fail( e.getMessage( ) );
-        } 
-        catch (IOException e) 
+            fail( e.getMessage( ) );
+        }
+        catch( IOException e )
         {
-        	fail( e.getMessage( ) );
-		}
+            fail( e.getMessage( ) );
+        }
     }
-    
+
     /**
-	* test HtmltoPDFService 2
-     * @throws IOException 
-	*/
+     * test HtmltoPDFService 3
+     * 
+     * @throws IOException
+     */
 
-    public void testHtml2Pdf_4(  ) throws IOException
+    public void testHtml2Pdf_3( ) throws IOException
+    {
+        Path resourceDirectory = Paths.get( "src", "test", "java", "resources", "templates", "test-checkbox.html" );
+        String absolutePath = resourceDirectory.toFile( ).getAbsolutePath( );
+        File input = new File( absolutePath );
+        Document doc = Jsoup.parse( input, "UTF-8" );
+        doc.outputSettings( ).syntax( Document.OutputSettings.Syntax.xml );
+        doc.outputSettings( ).escapeMode( EscapeMode.base.xhtml );
+        doc.outputSettings( ).charset( "UTF-8" );
+
+        String html = doc.html( );
+
+        Map<String, String> mapOptions = new HashMap<>( );
+        // mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/");
+
+        Path resourceDirectoryOutput = Paths.get( "src", "test", "java", "resources", "output", "outRadioBox.pdf" );
+        String absolutePathOutput = resourceDirectoryOutput.toFile( ).getAbsolutePath( );
+        try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
+        {
+            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
+                    .render( outputStream );
+        }
+        catch( PdfConverterServiceException e )
+        {
+            fail( e.getMessage( ) );
+        }
+        catch( IOException e )
+        {
+            fail( e.getMessage( ) );
+        }
+    }
+
+    /**
+     * test HtmltoPDFService 2
+     * 
+     * @throws IOException
+     */
+
+    public void testHtml2Pdf_4( ) throws IOException
     {
 
-    	Path resourceDirectory = Paths.get("src","test","java","resources","templates","PM_cerfa.html");
-    	String absolutePath = resourceDirectory.toFile().getAbsolutePath();    	
-    	File input = new File(absolutePath);
+        Path resourceDirectory = Paths.get( "src", "test", "java", "resources", "templates", "PM_cerfa.html" );
+        String absolutePath = resourceDirectory.toFile( ).getAbsolutePath( );
+        File input = new File( absolutePath );
 
-    	Document doc = Jsoup.parse(input, "UTF-8");
-    	doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-    	doc.outputSettings().escapeMode(EscapeMode.base.xhtml);
-        doc.outputSettings().charset("UTF-8");
-    	
-    	String html = doc.html();
-        
-    	
-        Map<String, String> mapOptions = new HashMap<>();
-        mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/");
-        
-        Map<String, String> mapWatermarkOptions = new HashMap<>();
-        mapWatermarkOptions.put("FontSize", "50f");
-        mapWatermarkOptions.put("Rotation", "1f");
-        mapWatermarkOptions.put("Text", "TESTWATERMARK");
-        mapWatermarkOptions.put("X", "200f");
-        mapWatermarkOptions.put("Y", "200f");
-        mapWatermarkOptions.put("Font", "HELVETICA");
-        
-        Map<String, String> mapQRcodeOptions = new HashMap<>();
-        mapQRcodeOptions.put("barCodeFormat", "QR_CODE");
-        mapQRcodeOptions.put("text", "testNLG");
-        mapQRcodeOptions.put("x", "450f");
-        mapQRcodeOptions.put("y", "700f");
-        mapQRcodeOptions.put("width", "100");
-        mapQRcodeOptions.put("height", "100");
-        mapQRcodeOptions.put("pageIndex", "0");
-        
-        Path resourceDirectoryOutput = Paths.get("src","test","java","resources","output","out4.pdf");
-    	String absolutePathOutput = resourceDirectoryOutput.toFile().getAbsolutePath();    	
-        try ( OutputStream outputStream =  new FileOutputStream(absolutePathOutput) )
+        Document doc = Jsoup.parse( input, "UTF-8" );
+        doc.outputSettings( ).syntax( Document.OutputSettings.Syntax.xml );
+        doc.outputSettings( ).escapeMode( EscapeMode.base.xhtml );
+        doc.outputSettings( ).charset( "UTF-8" );
+
+        String html = doc.html( );
+
+        Map<String, String> mapOptions = new HashMap<>( );
+        mapOptions.put( "PathFont", "/home/norbert/DEV/liberation-fonts-ttf-2.1.5/" );
+
+        Map<String, String> mapWatermarkOptions = new HashMap<>( );
+        mapWatermarkOptions.put( "FontSize", "50f" );
+        mapWatermarkOptions.put( "Rotation", "1f" );
+        mapWatermarkOptions.put( "Text", "TESTWATERMARK" );
+        mapWatermarkOptions.put( "X", "200f" );
+        mapWatermarkOptions.put( "Y", "200f" );
+        mapWatermarkOptions.put( "Font", "HELVETICA" );
+
+        Map<String, String> mapQRcodeOptions = new HashMap<>( );
+        mapQRcodeOptions.put( "barCodeFormat", "QR_CODE" );
+        mapQRcodeOptions.put( "text", "testNLG" );
+        mapQRcodeOptions.put( "x", "450f" );
+        mapQRcodeOptions.put( "y", "700f" );
+        mapQRcodeOptions.put( "width", "100" );
+        mapQRcodeOptions.put( "height", "100" );
+        mapQRcodeOptions.put( "pageIndex", "0" );
+
+        Path resourceDirectoryOutput = Paths.get( "src", "test", "java", "resources", "output", "out4.pdf" );
+        String absolutePathOutput = resourceDirectoryOutput.toFile( ).getAbsolutePath( );
+        try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
         {
 
-        	PdfConverterService.getInstance().getPdfBuilder().reset()
-        	.withHtmlContent(html)
-        	.withOptions(mapOptions)
-        	.notEditable()
-        	.render(outputStream);
-        } 
-        catch ( PdfConverterServiceException e )
+            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
+                    .render( outputStream );
+        }
+        catch( PdfConverterServiceException e )
         {
-        	
-        } 
-        catch (IOException e) 
+
+        }
+        catch( IOException e )
         {
-        	
-		}
+
+        }
     }
-     
 
 }

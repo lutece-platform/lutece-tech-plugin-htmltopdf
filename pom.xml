@@ -17,12 +17,10 @@
     <name>Lutece htmltopdf plugin</name>
     
     <properties>
-	    <componentName>htmltopdf</componentName>
-        <jiraProjectName>HTMLTOPDF</jiraProjectName>
-        <jiraComponentId />
-		<maven.javadoc.skip>true</maven.javadoc.skip>
-		<openhtml.version>1.0.10</openhtml.version>
-	</properties>
+        <componentName>htmltopdf</componentName>
+        <jiraProjectName>HTMLTOP</jiraProjectName>
+        <jiraComponentId>16763</jiraComponentId>
+    </properties>
 
     <repositories>
         <repository>

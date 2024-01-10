@@ -19,7 +19,8 @@
     <properties>
         <componentName>htmltopdf</componentName>
         <jiraProjectName>HTMLTOP</jiraProjectName>
-        <jiraComponentId>16763</jiraComponentId>
+	<jiraComponentId>16763</jiraComponentId>
+	<openhtml.version>1.0.10</openhtml.version>
     </properties>
 
     <repositories>

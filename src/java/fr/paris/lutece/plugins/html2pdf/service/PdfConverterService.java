@@ -37,23 +37,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 
+@ApplicationScoped
 public class PdfConverterService
 {
 
     private Map<String, IPdfBuilder> _pdfBuilders = new HashMap<>( );
     private IPdfBuilder _currentPdfBuilder;
-
-    private static PdfConverterService _instance;
+    
+    @Inject
+    private Instance<IPdfBuilder> _pdfBuilder;
 
     /**
      * init
      */
-    private PdfConverterService( )
+    @PostConstruct
+    private void initPdfConverterService( )
     {
-        List<IPdfBuilder> pdfConverterServiceProviderList = SpringContextService.getBeansOfType( IPdfBuilder.class );
-        if ( !pdfConverterServiceProviderList.isEmpty( ) )
+    	List<IPdfBuilder> pdfConverterServiceProviderList = _pdfBuilder.stream( ).toList( );
+    	if ( !pdfConverterServiceProviderList.isEmpty( ) )
         {
             for ( IPdfBuilder b : pdfConverterServiceProviderList )
             {
@@ -64,18 +71,21 @@ public class PdfConverterService
     }
 
     /**
-     * getter
+     * Returns the unique instance of the {@link PdfConverterService} service.
      * 
-     * @return the instance
+     * <p>This method is deprecated and is provided for backward compatibility only. 
+     * For new code, use dependency injection with {@code @Inject} to obtain the 
+     * {@link PdfConverterService} instance instead.</p>
+     * 
+     * @return The unique instance of {@link PdfConverterService}.
+     * 
+     * @deprecated Use {@code @Inject} to obtain the {@link PdfConverterService} 
+     * instance. This method will be removed in future versions.
      */
+    @Deprecated( since = "8.0", forRemoval = true )
     public static PdfConverterService getInstance( )
     {
-        if ( _instance == null )
-        {
-            _instance = new PdfConverterService( );
-        }
-
-        return _instance;
+        return CDI.current( ).select( PdfConverterService.class ).get( );
     }
 
     /**

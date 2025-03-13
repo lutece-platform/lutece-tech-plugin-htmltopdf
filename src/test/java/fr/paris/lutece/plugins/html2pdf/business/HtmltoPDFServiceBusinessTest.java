@@ -45,19 +45,25 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities.EscapeMode;
+import org.junit.jupiter.api.Test;
+
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterServiceException;
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterService;
 import fr.paris.lutece.test.LuteceTestCase;
+import jakarta.inject.Inject;
 
 /**
  * This is the business class test for the object HtmltoPDFService
  */
 public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
 {
-
+    
+    private @Inject PdfConverterService _pdfConverterService;
+    
     /**
      * test HtmltoPDFService 1
      */
+    @Test
     public void testHtml2Pdf_1( )
     {
 
@@ -72,7 +78,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
         {
             // new OpenHtmlToPdfConverterServiceProvider.PdfBuilder( html ).render( outputStream );
-            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).render( outputStream );
+        	_pdfConverterService.getPdfBuilder( ).reset( ).withHtmlContent( html ).render( outputStream );
         }
         catch( PdfConverterServiceException e )
         {
@@ -88,7 +94,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
     /**
      * test HtmltoPDFService 2
      */
-
+    @Test
     public void testHtml2Pdf_2( )
     {
 
@@ -102,7 +108,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         String absolutePathOutput = resourceDirectoryOutput.toFile( ).getAbsolutePath( );
         try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
         {
-            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
+            _pdfConverterService.getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
                     .render( outputStream );
         }
         catch( PdfConverterServiceException e )
@@ -120,7 +126,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
      * 
      * @throws IOException
      */
-
+    @Test
     public void testHtml2Pdf_3( ) throws IOException
     {
         Path resourceDirectory = Paths.get( "src", "test", "java", "resources", "templates", "test-checkbox.html" );
@@ -128,7 +134,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         File input = new File( absolutePath );
         Document doc = Jsoup.parse( input, "UTF-8" );
         doc.outputSettings( ).syntax( Document.OutputSettings.Syntax.xml );
-        doc.outputSettings( ).escapeMode( EscapeMode.base.xhtml );
+        doc.outputSettings( ).escapeMode( EscapeMode.xhtml );
         doc.outputSettings( ).charset( "UTF-8" );
 
         String html = doc.html( );
@@ -140,7 +146,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         String absolutePathOutput = resourceDirectoryOutput.toFile( ).getAbsolutePath( );
         try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
         {
-            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
+        	_pdfConverterService.getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
                     .render( outputStream );
         }
         catch( PdfConverterServiceException e )
@@ -158,7 +164,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
      * 
      * @throws IOException
      */
-
+    @Test
     public void testHtml2Pdf_4( ) throws IOException
     {
 
@@ -168,7 +174,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
 
         Document doc = Jsoup.parse( input, "UTF-8" );
         doc.outputSettings( ).syntax( Document.OutputSettings.Syntax.xml );
-        doc.outputSettings( ).escapeMode( EscapeMode.base.xhtml );
+        doc.outputSettings( ).escapeMode( EscapeMode.xhtml );
         doc.outputSettings( ).charset( "UTF-8" );
 
         String html = doc.html( );
@@ -198,7 +204,7 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         try ( OutputStream outputStream = new FileOutputStream( absolutePathOutput ) )
         {
 
-            PdfConverterService.getInstance( ).getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
+        	_pdfConverterService.getPdfBuilder( ).reset( ).withHtmlContent( html ).withOptions( mapOptions ).notEditable( )
                     .render( outputStream );
         }
         catch( PdfConverterServiceException e )

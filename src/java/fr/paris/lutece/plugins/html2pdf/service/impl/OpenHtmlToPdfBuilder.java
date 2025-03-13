@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.html2pdf.service.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -46,7 +45,9 @@ import fr.paris.lutece.plugins.html2pdf.service.IPdfBuilder;
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterServiceException;
 import fr.paris.lutece.plugins.html2pdf.utils.FontBuilder;
 import fr.paris.lutece.plugins.html2pdf.utils.PDDocumentUtils;
+import jakarta.enterprise.context.ApplicationScoped;
 
+@ApplicationScoped
 public class OpenHtmlToPdfBuilder implements IPdfBuilder
 {
 

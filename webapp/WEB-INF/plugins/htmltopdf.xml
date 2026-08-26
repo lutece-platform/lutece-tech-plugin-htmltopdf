@@ -6,8 +6,8 @@
     <installation/>
     <changes/>
     <user-guide/>
-    <description>htmltopdf.plugin.description</description>
-    <provider>htmltopdf.plugin.provider</provider>
+    <description>html2pdf.plugin.description</description>
+    <provider>html2pdf.plugin.provider</provider>
     <provider-url>http://dev.lutece.paris.fr</provider-url>
     <icon-url>images/admin/skin/feature_default_icon.png</icon-url>
     <copyright>htmltopdf</copyright>

@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.FontStyle;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 /**
@@ -68,6 +69,13 @@ public class FontBuilder
     /**
      * Add font to parameter builder
      * 
+     * The fonts are registered twice : under the name of the file without its extension, and under
+     * the name of the family deduced from the usual naming of the font files ( Family-Regular.ttf,
+     * Family_Bold.ttf, Family-Italic.ttf, Family_Bold_Italic.ttf ). The second registration lets the
+     * css use a single font-family, the renderer selecting the variant matching the font-weight and
+     * the font-style. It is needed by the accessible rendering ( PDF/UA ), where a bold or an italic
+     * text must not fall back on a non embedded font.
+     * 
      * @param builder
      * @param pathFont
      */
@@ -79,8 +87,59 @@ public class FontBuilder
             for ( Map.Entry<String, String> ttf : mapFonts.entrySet( ) )
             {
                 File file = new File( ttf.getKey( ) );
-                builder.useFont( file, ttf.getValue( ) );
+                String strFontName = ttf.getValue( );
+
+                builder.useFont( file, strFontName );
+                builder.useFont( file, getFamily( strFontName ), getWeight( strFontName ), getStyle( strFontName ), true );
             }
         }
+    }
+
+    /**
+     * Get the family of a font from the name of its file, by removing the suffixes naming its
+     * variant ( LiberationSans-BoldItalic and Arial_Bold_Italic give LiberationSans and Arial )
+     * 
+     * @param strFontName
+     *            the name of the file of the font, without its extension
+     * @return the name of the family
+     */
+    private static String getFamily( String strFontName )
+    {
+        String strFamily = strFontName;
+        String strPreviousFamily = null;
+
+        while ( !strFamily.equals( strPreviousFamily ) )
+        {
+            strPreviousFamily = strFamily;
+            strFamily = strFamily.replaceAll( "(?i)[-_ ](regular|bold|italic|oblique|bolditalic)$", "" );
+        }
+
+        return strFamily.isEmpty( ) ? strFontName : strFamily;
+    }
+
+    /**
+     * Get the weight of a font from the name of its file
+     * 
+     * @param strFontName
+     *            the name of the file of the font, without its extension
+     * @return 700 for a bold font, 400 otherwise
+     */
+    private static int getWeight( String strFontName )
+    {
+        return strFontName.toLowerCase( ).contains( "bold" ) ? 700 : 400;
+    }
+
+    /**
+     * Get the style of a font from the name of its file
+     * 
+     * @param strFontName
+     *            the name of the file of the font, without its extension
+     * @return the style of the font
+     */
+    private static FontStyle getStyle( String strFontName )
+    {
+        String strLowerCaseName = strFontName.toLowerCase( );
+
+        return ( strLowerCaseName.contains( "italic" ) || strLowerCaseName.contains( "oblique" ) ) ? FontStyle.ITALIC : FontStyle.NORMAL;
     }
 }

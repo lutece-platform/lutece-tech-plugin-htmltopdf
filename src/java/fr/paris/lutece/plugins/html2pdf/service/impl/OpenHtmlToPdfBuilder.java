@@ -55,10 +55,9 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
     public static final String BASE_DOCUMENT_URI = "/";
 
     protected boolean _isEditable = true;
+    protected boolean _isAccessible = false;
     protected String _strHtml;
-    private PDDocument _doc = null;
-
-    private static PdfRendererBuilder _pdfRendererbuilder = new PdfRendererBuilder( );
+    protected String _strFontPath;
 
     @Override
     public IPdfBuilder withHtmlContent( String strHtml )
@@ -75,16 +74,22 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
     }
 
     @Override
+    public OpenHtmlToPdfBuilder accessible( )
+    {
+        this._isAccessible = true;
+        return this;
+    }
+
+    @Override
     public OpenHtmlToPdfBuilder withOptions( Map<String, String> mapOptions )
     {
 
         if ( mapOptions.containsKey( KEY_FONT_PATH ) )
         {
-            FontBuilder.addFontToRender( _pdfRendererbuilder, mapOptions.get( KEY_FONT_PATH ) );
+            this._strFontPath = mapOptions.get( KEY_FONT_PATH );
         }
 
         // TODO add map options tests and defaults ...
-        _pdfRendererbuilder.useFastMode( );
 
         return this;
     }
@@ -95,21 +100,39 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
 
         try
         {
-            // create builder
-            _pdfRendererbuilder.withHtmlContent( _strHtml, BASE_DOCUMENT_URI );
+            // create builder : a new one for each rendering, the builder being stateful and this
+            // service being shared by all the applications of the site
+            PdfRendererBuilder pdfRendererbuilder = new PdfRendererBuilder( );
+
+            // fonts : mandatory for the PDF/UA conformance, which forbids the non embedded fonts
+            if ( _strFontPath != null )
+            {
+                FontBuilder.addFontToRender( pdfRendererbuilder, _strFontPath );
+            }
+
+            // fast mode : the default rendering mode, the only one handling the accessibility tagging
+            pdfRendererbuilder.useFastMode( );
+
+            // is accessible
+            if ( _isAccessible )
+            {
+                pdfRendererbuilder.usePdfUaAccessbility( true );
+            }
+
+            pdfRendererbuilder.withHtmlContent( _strHtml, BASE_DOCUMENT_URI );
 
             // create PDDocument
-            _doc = PDDocumentUtils.convertToPDDocument( _pdfRendererbuilder );
+            PDDocument doc = PDDocumentUtils.convertToPDDocument( pdfRendererbuilder );
 
             // is editable
             if ( !_isEditable )
             {
-                PDDocumentUtils.convertToNotEditablePdf( _doc );
+                PDDocumentUtils.convertToNotEditablePdf( doc );
             }
 
             // render
-            _doc.save( out );
-            _doc.close( );
+            doc.save( out );
+            doc.close( );
         }
         catch( IOException e )
         {
@@ -128,7 +151,9 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
     public IPdfBuilder reset( )
     {
         this._isEditable = true;
+        this._isAccessible = false;
         this._strHtml = null;
+        this._strFontPath = null;
         return this;
     }
 

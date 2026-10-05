@@ -40,11 +40,22 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.documentinterchange.logicalstructure.PDStructureElement;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities.EscapeMode;
+import fr.paris.lutece.plugins.html2pdf.service.IPdfBuilder;
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterServiceException;
 import fr.paris.lutece.plugins.html2pdf.service.PdfConverterService;
 import fr.paris.lutece.test.LuteceTestCase;
@@ -54,6 +65,9 @@ import fr.paris.lutece.test.LuteceTestCase;
  */
 public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
 {
+
+    /** Directory of the fonts used by the accessible rendering tests */
+    private static final String FONT_PATH = Paths.get( "src", "test", "java", "resources", "fonts" ).toFile( ).getAbsolutePath( ) + File.separator;
 
     /**
      * test HtmltoPDFService 1
@@ -209,6 +223,202 @@ public class HtmltoPDFServiceBusinessTest extends LuteceTestCase
         {
 
         }
+    }
+
+    /**
+     * test HtmltoPDFService : the accessible option produces a tagged document ( PDF/UA )
+     *
+     * \"throws IOException
+     */
+    public void testHtml2Pdf_accessible( ) throws IOException
+    {
+        File output = renderAccessible( "outAccessible.pdf", true, FONT_PATH );
+
+        try ( PDDocument doc = PDDocument.load( output ) )
+        {
+            PDDocumentCatalog catalog = doc.getDocumentCatalog( );
+
+            assertNotNull( "the document must carry a MarkInfo dictionary", catalog.getMarkInfo( ) );
+            assertTrue( "the document must be marked as tagged", catalog.getMarkInfo( ).isMarked( ) );
+            assertNotNull( "the document must carry a structure tree", catalog.getStructureTreeRoot( ) );
+            assertEquals( "the language of the html element must be reported on the document", "fr", catalog.getLanguage( ) );
+            assertEquals( "the title of the document must be set", "Example", doc.getDocumentInformation( ).getTitle( ) );
+            assertEquals( "the description of the document must be set", "Accessible rendering", doc.getDocumentInformation( ).getSubject( ) );
+
+            Set<String> setTypes = getStructureTypes( catalog );
+            assertTrue( "the heading must be tagged, found " + setTypes, setTypes.contains( "H1" ) );
+            assertTrue( "the paragraph must be tagged, found " + setTypes, setTypes.contains( "P" ) );
+            assertTrue( "the table must be tagged, found " + setTypes, setTypes.contains( "Table" ) );
+            assertTrue( "the header cells of the table must be tagged, found " + setTypes, setTypes.contains( "TH" ) );
+        }
+    }
+
+    /**
+     * test HtmltoPDFService : without the accessible option the rendering is left unchanged
+     *
+     * \"throws IOException
+     */
+    public void testHtml2Pdf_notAccessibleByDefault( ) throws IOException
+    {
+        File output = renderAccessible( "outNotAccessible.pdf", false, FONT_PATH );
+
+        try ( PDDocument doc = PDDocument.load( output ) )
+        {
+            PDDocumentCatalog catalog = doc.getDocumentCatalog( );
+
+            assertFalse( "the document must not be tagged when the option is not set",
+                    catalog.getMarkInfo( ) != null && catalog.getMarkInfo( ).isMarked( ) );
+            assertNull( "the document must not carry a structure tree when the option is not set", catalog.getStructureTreeRoot( ) );
+        }
+    }
+
+    /**
+     * test HtmltoPDFService : the accessible option must not leak from one rendering to the next,
+     * the builder being shared by all the applications of the site
+     *
+     * \"throws IOException
+     */
+    public void testHtml2Pdf_accessibleIsClearedByReset( ) throws IOException
+    {
+        renderAccessible( "outAccessibleBeforeReset.pdf", true, FONT_PATH );
+
+        File output = renderAccessible( "outAfterReset.pdf", false, null );
+
+        try ( PDDocument doc = PDDocument.load( output ) )
+        {
+            PDDocumentCatalog catalog = doc.getDocumentCatalog( );
+
+            assertFalse( "the accessible option of the previous rendering must have been cleared by reset",
+                    catalog.getMarkInfo( ) != null && catalog.getMarkInfo( ).isMarked( ) );
+            assertNull( "the structure tree of the previous rendering must not be kept", catalog.getStructureTreeRoot( ) );
+        }
+    }
+
+    /**
+     * test HtmltoPDFService : every variant of the font family is embedded, the PDF/UA conformance
+     * forbidding the non embedded fonts
+     *
+     * \"throws IOException
+     */
+    public void testHtml2Pdf_accessibleFontsAreEmbedded( ) throws IOException
+    {
+        File output = renderAccessible( "outAccessibleFonts.pdf", true, FONT_PATH );
+
+        try ( PDDocument doc = PDDocument.load( output ) )
+        {
+            Set<String> setFonts = new TreeSet<>( );
+
+            for ( PDPage page : doc.getPages( ) )
+            {
+                for ( COSName name : page.getResources( ).getFontNames( ) )
+                {
+                    PDFont font = page.getResources( ).getFont( name );
+                    assertTrue( "the font " + font.getName( ) + " must be embedded", font.isEmbedded( ) );
+                    setFonts.add( font.getName( ) );
+                }
+            }
+
+            // the regular, the bold and the italic runs must each use their own variant of the
+            // family : a single font would mean that the bold and the italic fell back on it
+            assertEquals( "the three variants of the family must be used, found " + setFonts, 3, setFonts.size( ) );
+        }
+    }
+
+    /**
+     * Render the test page used by the accessibility tests
+     *
+     * \"param strFileName
+     *            the name of the produced file
+     * \"param bAccessible
+     *            whether the accessible option is set
+     * \"param strFontPath
+     *            the directory of the fonts, null to register none
+     * \"return the produced file
+     * \"throws IOException
+     */
+    private File renderAccessible( String strFileName, boolean bAccessible, String strFontPath ) throws IOException
+    {
+        String html = "<!DOCTYPE html PUBLIC \"-//OPENHTMLTOPDF//DOC XHTML Character Entities Only 1.0//EN\" \"\">\n"
+                + "<html lang=\"fr\" xml:lang=\"fr\"><head><title>Example</title>"
+                + "<meta name=\"subject\" content=\"Accessible rendering\"/>"
+                + "<style>body{font-family:'Arial',sans-serif}table{border-collapse:collapse}th,td{border:1px solid #000}</style>"
+                + "</head><body><h1>Title of the document</h1>"
+                + "<p>A paragraph with a <strong>bold</strong> run and an <em>italic</em> run.</p>"
+                + "<table><tr><th scope=\"col\">Service</th><th scope=\"col\">Price</th></tr>"
+                + "<tr><td>Simple test</td><td>48,00</td></tr></table></body></html>";
+
+        Path resourceDirectoryOutput = Paths.get( "src", "test", "java", "resources", "output", strFileName );
+        File output = resourceDirectoryOutput.toFile( );
+
+        IPdfBuilder builder = PdfConverterService.getInstance( ).getPdfBuilder( ).reset( );
+
+        if ( bAccessible )
+        {
+            builder = builder.accessible( );
+        }
+
+        if ( strFontPath != null )
+        {
+            Map<String, String> mapOptions = new HashMap<>( );
+            mapOptions.put( "PathFont", strFontPath );
+            builder = builder.withOptions( mapOptions );
+        }
+
+        try ( OutputStream outputStream = new FileOutputStream( output ) )
+        {
+            builder.withHtmlContent( html ).render( outputStream );
+        }
+        catch( PdfConverterServiceException e )
+        {
+            fail( e.getMessage( ) );
+        }
+
+        return output;
+    }
+
+    /**
+     * Collect the types of the elements of the structure tree of a document
+     *
+     * \"param catalog
+     *            the catalog of the document
+     * \"return the types found
+     */
+    private Set<String> getStructureTypes( PDDocumentCatalog catalog )
+    {
+        Set<String> setTypes = new LinkedHashSet<>( );
+
+        if ( catalog.getStructureTreeRoot( ) != null )
+        {
+            collectStructureTypes( catalog.getStructureTreeRoot( ).getKids( ), setTypes );
+        }
+
+        return setTypes;
+    }
+
+    /**
+     * Collect recursively the types of the elements of a structure tree
+     *
+     * \"param kids
+     *            the children to walk through
+     * \"param setTypes
+     *            the types found so far
+     */
+    private void collectStructureTypes( Object kids, Set<String> setTypes )
+    {
+        if ( kids instanceof List )
+        {
+            for ( Object kid : (List<?>) kids )
+            {
+                collectStructureTypes( kid, setTypes );
+            }
+        }
+        else
+            if ( kids instanceof PDStructureElement )
+            {
+                PDStructureElement element = (PDStructureElement) kids;
+                setTypes.add( element.getStandardStructureType( ) );
+                collectStructureTypes( element.getKids( ), setTypes );
+            }
     }
 
 }

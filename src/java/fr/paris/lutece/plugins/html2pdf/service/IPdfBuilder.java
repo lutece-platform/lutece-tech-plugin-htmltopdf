@@ -71,6 +71,25 @@ public interface IPdfBuilder
     public IPdfBuilder notEditable( );
 
     /**
+     * enable the accessibility tagging (PDF/UA) of the generated document.
+     *
+     * The renderer produces a tagged PDF : headings, paragraphs, tables, lists and alternative texts
+     * of the images are exposed to the assistive technologies, and the document title is displayed
+     * instead of the file name. Without it the document is read as a single image.
+     *
+     * The html content must provide the elements required by the PDF/UA conformance : a lang
+     * attribute on the html element, a title element, an alt attribute on every image, th elements
+     * for the table headers. The fonts must also be embedded (see the PathFont option), the
+     * conformance forbidding the use of the non embedded standard fonts.
+     *
+     * @return the builder
+     */
+    default IPdfBuilder accessible( )
+    {
+        return this;
+    }
+
+    /**
      * add specific options
      * 
      * @param mapOptions

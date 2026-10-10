@@ -38,6 +38,11 @@ import java.util.Map;
 
 // public interface IPdfConverterServiceProvider {
 
+/**
+ * PDF builder. The builder bean is shared by every request: start each rendering with {@link #reset()} and chain the calls on
+ * the object it returns, e.g. {@code builder.reset( ).withHtmlContent( html ).notEditable( ).render( out )}. Calls made one by
+ * one on the shared bean each start a new rendering and do not share their state.
+ */
 public interface IPdfBuilder
 {
 

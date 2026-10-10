@@ -47,6 +47,10 @@ import fr.paris.lutece.plugins.html2pdf.utils.FontBuilder;
 import fr.paris.lutece.plugins.html2pdf.utils.PDDocumentUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 
+/**
+ * PDF builder based on OpenHtmlToPdf. The bean is shared by every request: it keeps no state, each rendering (started by
+ * {@link #reset()} or by any other method) has its own content, options and renderer
+ */
 @ApplicationScoped
 public class OpenHtmlToPdfBuilder implements IPdfBuilder
 {
@@ -55,68 +59,28 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
     public static final String KEY_PRODUCER = "Producer";
     public static final String BASE_DOCUMENT_URI = "/";
 
-    protected boolean _isEditable = true;
-    protected String _strHtml;
-    private PDDocument _doc = null;
-
-    private static PdfRendererBuilder _pdfRendererbuilder = new PdfRendererBuilder( );
-
     @Override
     public IPdfBuilder withHtmlContent( String strHtml )
     {
-        this._strHtml = strHtml;
-        return this;
+        return reset( ).withHtmlContent( strHtml );
     }
 
     @Override
-    public OpenHtmlToPdfBuilder notEditable( )
+    public IPdfBuilder notEditable( )
     {
-        this._isEditable = false;
-        return this;
+        return reset( ).notEditable( );
     }
 
     @Override
-    public OpenHtmlToPdfBuilder withOptions( Map<String, String> mapOptions )
+    public IPdfBuilder withOptions( Map<String, String> mapOptions )
     {
-
-        if ( mapOptions.containsKey( KEY_FONT_PATH ) )
-        {
-            FontBuilder.addFontToRender( _pdfRendererbuilder, mapOptions.get( KEY_FONT_PATH ) );
-        }
-
-        // TODO add map options tests and defaults ...
-        _pdfRendererbuilder.useFastMode( );
-
-        return this;
+        return reset( ).withOptions( mapOptions );
     }
 
     @Override
     public void render( OutputStream out ) throws PdfConverterServiceException
     {
-
-        try
-        {
-            // create builder
-            _pdfRendererbuilder.withHtmlContent( _strHtml, BASE_DOCUMENT_URI );
-
-            // create PDDocument
-            _doc = PDDocumentUtils.convertToPDDocument( _pdfRendererbuilder );
-
-            // is editable
-            if ( !_isEditable )
-            {
-                PDDocumentUtils.convertToNotEditablePdf( _doc );
-            }
-
-            // render
-            _doc.save( out );
-            _doc.close( );
-        }
-        catch( IOException e )
-        {
-            throw new PdfConverterServiceException( e.getMessage( ), e );
-        }
-
+        reset( ).render( out );
     }
 
     @Override
@@ -125,12 +89,89 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
         return "OpenHtml2Pdf Builder";
     }
 
+    /**
+     * Starts a new rendering
+     *
+     * @return the rendering
+     */
     @Override
     public IPdfBuilder reset( )
     {
-        this._isEditable = true;
-        this._strHtml = null;
-        return this;
+        return new Rendering( getName( ) );
     }
 
+    /**
+     * One rendering: used by one request only
+     */
+    private static final class Rendering implements IPdfBuilder
+    {
+        private final String _strName;
+        private final PdfRendererBuilder _pdfRendererBuilder = new PdfRendererBuilder( );
+        private boolean _bEditable = true;
+        private String _strHtml;
+
+        private Rendering( String strName )
+        {
+            _strName = strName;
+            _pdfRendererBuilder.useFastMode( );
+        }
+
+        @Override
+        public IPdfBuilder withHtmlContent( String strHtml )
+        {
+            _strHtml = strHtml;
+            return this;
+        }
+
+        @Override
+        public IPdfBuilder notEditable( )
+        {
+            _bEditable = false;
+            return this;
+        }
+
+        @Override
+        public IPdfBuilder withOptions( Map<String, String> mapOptions )
+        {
+            if ( mapOptions.containsKey( KEY_FONT_PATH ) )
+            {
+                FontBuilder.addFontToRender( _pdfRendererBuilder, mapOptions.get( KEY_FONT_PATH ) );
+            }
+
+            // TODO add map options tests and defaults ...
+            return this;
+        }
+
+        @Override
+        public void render( OutputStream out ) throws PdfConverterServiceException
+        {
+            _pdfRendererBuilder.withHtmlContent( _strHtml, BASE_DOCUMENT_URI );
+
+            try ( PDDocument doc = PDDocumentUtils.convertToPDDocument( _pdfRendererBuilder ) )
+            {
+                if ( !_bEditable )
+                {
+                    PDDocumentUtils.convertToNotEditablePdf( doc );
+                }
+
+                doc.save( out );
+            }
+            catch( IOException e )
+            {
+                throw new PdfConverterServiceException( e.getMessage( ), e );
+            }
+        }
+
+        @Override
+        public String getName( )
+        {
+            return _strName;
+        }
+
+        @Override
+        public IPdfBuilder reset( )
+        {
+            return new Rendering( _strName );
+        }
+    }
 }

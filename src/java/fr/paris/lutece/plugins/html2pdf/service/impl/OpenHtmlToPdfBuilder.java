@@ -39,6 +39,7 @@ import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 
+import com.openhtmltopdf.outputdevice.helper.ExternalResourceControlPriority;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import fr.paris.lutece.plugins.html2pdf.service.IPdfBuilder;
@@ -57,6 +58,7 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
 
     public static final String KEY_FONT_PATH = "PathFont";
     public static final String KEY_PRODUCER = "Producer";
+    /** Base URI used when the webapp directory is not known */
     public static final String BASE_DOCUMENT_URI = "/";
 
     @Override
@@ -145,7 +147,12 @@ public class OpenHtmlToPdfBuilder implements IPdfBuilder
         @Override
         public void render( OutputStream out ) throws PdfConverterServiceException
         {
-            _pdfRendererBuilder.withHtmlContent( _strHtml, BASE_DOCUMENT_URI );
+            // relative URLs designate files of the webapp; only the resources allowed by the policy are read
+            PdfResourceAccessPolicy policy = PdfResourceAccessPolicy.ofSite( );
+            String strBaseUri = policy.getBaseUri( );
+            _pdfRendererBuilder.useExternalResourceAccessControl( policy, ExternalResourceControlPriority.RUN_AFTER_RESOLVING_URI );
+            _pdfRendererBuilder.useProtocolsStreamImplementation( policy, PdfResourceAccessPolicy.PROTOCOLS );
+            _pdfRendererBuilder.withHtmlContent( _strHtml, strBaseUri != null ? strBaseUri : BASE_DOCUMENT_URI );
 
             try ( PDDocument doc = PDDocumentUtils.convertToPDDocument( _pdfRendererBuilder ) )
             {
